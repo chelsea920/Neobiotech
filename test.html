@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적서 작성하기</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            padding: 0; 
+        }
+        input, select, button {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .header {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .contract-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .contract-row input[type="number"] {
+            width: 80%; /* 입력란 너비 조정 */
+            margin-right: 10px; /* 체크박스와의 간격 */
+        }
+        .logo {
+            width: 100%; /* 모바일에서 가로로 꽉 차게 조정 */
+            height: auto; /* 비율 유지 */
+            display: block;
+            margin: 0 auto; /* 중앙 정렬 */
+        }
+        .result-container {
+            display: none; /* 처음에는 숨김 */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="https://www.neobiotech.co.kr/img/m01_03_ci.jpg" alt="로고" class="logo">
+    <h1>견적서 작성하기</h1>
+    
+    <label for="clinicName">치과명:</label>
+    <input type="text" id="clinicName" placeholder="치과명 입력">
+
+    <label for="customerName">고객명:</label>
+    <input type="text" id="customerName" placeholder="고객명 입력">
+
+    <label for="managerName">담당자:</label>
+    <input type="text" id="managerName" placeholder="담당자 이름 입력">
+
+    <label for="managerContact">담당자 연락처:</label>
+    <input type="text" id="managerContact" placeholder="담당자 연락처 입력">
+
+    <label for="implantType">임플란트 종류:</label>
+    <select id="implantType">
+        <option value="IS-2">IS-2 (정가: 165,000원)</option>
+        <option value="IS-3">IS-3 (정가: 173,000원)</option>
+    </select>
+
+    <label for="contractAmount1">제품 계약금액 1안 (만원):</label>
+    <div class="contract-row">
+        <input type="number" id="contractAmount1" placeholder="계약금액 입력" min="0">
+        <label><input type="checkbox" id="recommend1"> 담당자 추천</label>
+    </div>
+    <label for="productAmount1">상품 계약금액 (만원):</label>
+    <input type="number" id="productAmount1" placeholder="상품 계약금액 입력" min="0">
+
+    <label for="contractAmount2">제품 계약금액 2안 (만원):</label>
+    <div class="contract-row">
+        <input type="number" id="contractAmount2" placeholder="계약금액 입력" min="0">
+        <label><input type="checkbox" id="recommend2"> 담당자 추천</label>
+    </div>
+    <label for="productAmount2">상품 계약금액 (만원):</label>
+    <input type="number" id="productAmount2" placeholder="상품 계약금액 입력" min="0">
+
+    <label for="contractAmount3">제품 계약금액 3안 (만원):</label>
+    <div class="contract-row">
+        <input type="number" id="contractAmount3" placeholder="계약금액 입력" min="0">
+        <label><input type="checkbox" id="recommend3"> 담당자 추천</label>
+    </div>
+    <label for="productAmount3">상품 계약금액 (만원):</label>
+    <input type="number" id="productAmount3" placeholder="상품 계약금액 입력" min="0">
+
+    <label for="surcharge1">할증률 1안 (%):</label>
+    <input type="number" id="surcharge1" placeholder="할증률 입력" min="0">
+
+    <label for="surcharge2">할증률 2안 (%):</label>
+    <input type="number" id="surcharge2" placeholder="할증률 입력" min="0">
+
+    <label for="surcharge3">할증률 3안 (%):</label>
+    <input type="number" id="surcharge3" placeholder="할증률 입력" min="0">
+
+    <label for="remarks">비고 (추가 프로모션, 결제방법, 할부개월 등):</label>
+    <input type="text" id="remarks" placeholder="비고 입력">
+
+    <button onclick="generateQuote()">견적서 생성</button>
+    
+    <div class="result-container" id="resultContainer">
+        <h2>견적서 결과</h2>
+        <div id="result"></div>
+        <button onclick="downloadQuote()">견적서 다운로드</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
+    
+    <script>
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function generateQuote() {
+            const clinicName = document.getElementById('clinicName').value;
+            const customerName = document.getElementById('customerName').value;
+            const managerName = document.getElementById('managerName').value;
+            const managerContact = document.getElementById('managerContact').value;
+            const implantType = document.getElementById('implantType').value;
+            const unitPrice = implantType === "IS-2" ? 165000 : 173000; // 임플란트 정가
+
+            const contractAmount1 = parseFloat(document.getElementById('contractAmount1').value) * 10000 || 0;
+            const contractAmount2 = parseFloat(document.getElementById('contractAmount2').value) * 10000 || 0;
+            const contractAmount3 = parseFloat(document.getElementById('contractAmount3').value) * 10000 || 0;
+
+            const productAmount1 = parseFloat(document.getElementById('productAmount1').value) * 10000 || 0;
+            const productAmount2 = parseFloat(document.getElementById('productAmount2').value) * 10000 || 0;
+            const productAmount3 = parseFloat(document.getElementById('productAmount3').value) * 10000 || 0;
+
+            const surcharge1 = parseFloat(document.getElementById('surcharge1').value) / 100 || 0;
+            const surcharge2 = parseFloat(document.getElementById('surcharge2').value) / 100 || 0;
+            const surcharge3 = parseFloat(document.getElementById('surcharge3').value) / 100 || 0;
+
+            const remarks = document.getElementById('remarks').value; // 비고 입력값
+
+            // 할인율 계산
+            const discountRate1 = 1 - (1 / (1 + surcharge1));
+            const discountRate2 = 1 - (1 / (1 + surcharge2));
+            const discountRate3 = 1 - (1 / (1 + surcharge3));
+
+            // 고객 제공 금액 계산: 계약금액 + (계약금액 * 할증률)
+                        let customerProvidedAmount1 = contractAmount1 + (contractAmount1 * surcharge1);
+            let customerProvidedAmount2 = contractAmount2 + (contractAmount2 * surcharge2);
+            let customerProvidedAmount3 = contractAmount3 + (contractAmount3 * surcharge3);
+
+            // 소수점 제거
+            customerProvidedAmount1 = Math.floor(customerProvidedAmount1);
+            customerProvidedAmount2 = Math.floor(customerProvidedAmount2);
+            customerProvidedAmount3 = Math.floor(customerProvidedAmount3);
+
+            // 픽스쳐 개수와 픽스쳐 단가 계산
+            const fixtureCount1 = Math.floor(customerProvidedAmount1 / unitPrice);
+            const fixtureCount2 = Math.floor(customerProvidedAmount2 / unitPrice);
+            const fixtureCount3 = Math.floor(customerProvidedAmount3 / unitPrice);
+
+            const fixturePrice1 = unitPrice * (1 - discountRate1);
+            const fixturePrice2 = unitPrice * (1 - discountRate2);
+            const fixturePrice3 = unitPrice * (1 - discountRate3);
+
+            // 결과를 표로 표시
+            let resultText = `
+                <div class="header">${clinicName} ${customerName} 원장님 귀하</div>
+                <table>
+                    <tr>
+                        <th>항목</th>
+                        <th>금액 (원)</th>
+                        <th>상품 계약금액 (원)</th>
+                        <th>할증률 (%)</th>
+                        <th>할인율 (%)</th>
+                        <th>픽스쳐 개수</th>
+                        <th>픽스쳐 단가 (원)</th>
+                    </tr>
+            `;
+
+            if (contractAmount1 > 0) {
+                resultText += `
+                    <tr class="${document.getElementById('recommend1').checked ? 'highlight' : ''}">
+                        <td>제품 계약금액 1안</td>
+                        <td>${formatNumber(contractAmount1)}</td>
+                        <td>${formatNumber(productAmount1)}</td>
+                        <td>${(surcharge1 * 100).toFixed(2)}</td>
+                        <td>${(discountRate1 * 100).toFixed(2)}</td>
+                        <td>${fixtureCount1}</td>
+                        <td>${formatNumber(Math.floor(fixturePrice1))}</td>
+                    </tr>
+                `;
+            }
+
+            if (contractAmount2 > 0) {
+                resultText += `
+                    <tr class="${document.getElementById('recommend2').checked ? 'highlight' : ''}">
+                        <td>제품 계약금액 2안</td>
+                        <td>${formatNumber(contractAmount2)}</td>
+                        <td>${formatNumber(productAmount2)}</td>
+                        <td>${(surcharge2 * 100).toFixed(2)}</td>
+                        <td>${(discountRate2 * 100).toFixed(2)}</td>
+                        <td>${fixtureCount2}</td>
+                        <td>${formatNumber(Math.floor(fixturePrice2))}</td>
+                    </tr>
+                `;
+            }
+
+            if (contractAmount3 > 0) {
+                resultText += `
+                    <tr class="${document.getElementById('recommend3').checked ? 'highlight' : ''}">
+                        <td>제품 계약금액 3안</td>
+                        <td>${formatNumber(contractAmount3)}</td>
+                        <td>${formatNumber(productAmount3)}</td>
+                        <td>${(surcharge3 * 100).toFixed(2)}</td>
+                        <td>${(discountRate3 * 100).toFixed(2)}</td>
+                        <td>${fixtureCount3}</td>
+                        <td>${formatNumber(Math.floor(fixturePrice3))}</td>
+                    </tr>
+                `;
+            }
+
+            // 비고란 추가
+            resultText += `
+                <tr>
+                    <td colspan="7" style="text-align: left;">비고: ${remarks}</td>
+                </tr>
+            `;
+
+            resultText += `
+                </table>
+                <div class="footer">담당자: 네오임플란트 ${managerName} | 연락처: ${managerContact}</div>
+            `;
+
+            document.getElementById('result').innerHTML = resultText;
+            document.getElementById('resultContainer').style.display = 'block'; // 결과 표시
+        }
+
+        function downloadQuote() {
+            html2canvas(document.getElementById('resultContainer')).then(canvas => {
+                canvas.toBlob(function(blob) {
+                    saveAs(blob, '견적서.png'); // 다운로드할 파일명
+                });
+            });
+        }
+    </script>
+
+</body>
+</html>
