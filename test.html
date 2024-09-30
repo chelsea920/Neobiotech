@@ -54,7 +54,8 @@
             margin-right: 10px; /* 체크박스와의 간격 */
         }
         .logo {
-            max-width: 150px; /* 로고 크기 조정 */
+            width: 100%; /* 모바일에서 가로로 꽉 차게 조정 */
+            height: auto; /* 비율 유지 */
             display: block;
             margin: 0 auto; /* 중앙 정렬 */
         }
@@ -93,7 +94,7 @@
 
     <label for="implantType">임플란트 종류:</label>
     <select id="implantType">
-        <option value="IS-2">IS-2 (정가: 168,000원)</option>
+        <option value="IS-2">IS-2 (정가: 165,000원)</option>
         <option value="IS-3">IS-3 (정가: 173,000원)</option>
     </select>
 
@@ -148,7 +149,7 @@
             const managerName = document.getElementById('managerName').value;
             const managerContact = document.getElementById('managerContact').value;
             const implantType = document.getElementById('implantType').value;
-            const unitPrice = implantType === "IS-2" ? 168000 : 173000; // 임플란트 정가
+            const unitPrice = implantType === "IS-2" ? 165000 : 173000; // 임플란트 정가
 
             const contractAmount1 = parseFloat(document.getElementById('contractAmount1').value) * 10000 || 0;
             const contractAmount2 = parseFloat(document.getElementById('contractAmount2').value) * 10000 || 0;
@@ -179,7 +180,7 @@
             customerProvidedAmount2 = Math.floor(customerProvidedAmount2);
             customerProvidedAmount3 = Math.floor(customerProvidedAmount3);
 
-                       // 픽스쳐 개수와 픽스쳐 단가 계산
+                        // 픽스쳐 개수와 픽스쳐 단가 계산
             const fixtureCount1 = Math.floor(customerProvidedAmount1 / unitPrice); // 소수점 제거
             const fixtureCount2 = Math.floor(customerProvidedAmount2 / unitPrice);
             const fixtureCount3 = Math.floor(customerProvidedAmount3 / unitPrice);
