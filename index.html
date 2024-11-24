@@ -251,7 +251,7 @@ function downloadPDF() {
     html2canvas(document.querySelector("#quoteContent")).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4'); // 세로 방향 PDF 생성
-        const imgWidth = 190; // A4 용지 너비에 맞는 이미지 너비 (mm 단위)
+        const imgWidth = 195; // A4 용지 너비에 맞는 이미지 너비 (mm 단위)
         const pageHeight = pdf.internal.pageSize.height;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         let heightLeft = imgHeight;
@@ -259,20 +259,21 @@ function downloadPDF() {
         let position = 0;
 
         // 첫 페이지에 이미지 추가
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight); // x 좌표를 5로 설정
         heightLeft -= pageHeight;
 
         // 이미지가 페이지 높이를 초과하는 경우 페이지 나누기
         while (heightLeft >= 0) {
             position = heightLeft - imgHeight;
             pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight); // x 좌표를 5로 설정
             heightLeft -= pageHeight;
         }
 
         pdf.save("견적서.pdf"); // PDF 파일명
     });
 }
+
 
     </script>
 
